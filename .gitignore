@@ -10,7 +10,6 @@ ENV/
 .venv
 
 # SQLite database & local logs
-*.db
 *.sqlite3
 *.log
 server.out.log
@@ -25,3 +24,5 @@ Thumbs.db
 
 # Vercel
 .vercel/
+
+.vercel
