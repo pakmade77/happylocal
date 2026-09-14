@@ -8,7 +8,7 @@
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px">
+<div class="settings-split">
   <!-- Company Profile Card -->
   <div class="card">
     <h3>Company Profile & Invoicing Rules</h3>
@@ -18,7 +18,7 @@
         <input type="text" name="company_name" value="{{ company.company_name or 'Happy Local Adventure' }}" required>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>INVOICE PREFIX</label>
           <input type="text" name="invoice_prefix" value="{{ company.invoice_prefix or 'INV' }}" required>
@@ -49,7 +49,7 @@
     <p class="muted" style="font-size:0.82rem; margin-bottom:12px">Accounts printed on invoices for agent bank transfers.</p>
 
     <div class="table-container" style="margin-bottom:16px">
-      <table>
+      <table class="compact-table">
         <thead>
           <tr>
             <th>Bank</th>
@@ -79,7 +79,7 @@
 
     <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">+ Add Bank Account</h4>
     <form action="{{ url_for('add_bank_account') }}" method="POST">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>BANK NAME</label>
           <input type="text" name="bank_name" placeholder="e.g. BCA / Mandiri" required>
@@ -105,7 +105,7 @@
 </div>
 
 <!-- Field Resources Management (Guides & Drivers) -->
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px">
+<div class="settings-split">
   <!-- Guides Management -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
@@ -114,7 +114,7 @@
     </div>
 
     <div class="table-container" style="margin-bottom:16px">
-      <table>
+      <table class="compact-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -138,7 +138,7 @@
 
     <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">+ Register New Guide</h4>
     <form action="{{ url_for('add_guide') }}" method="POST">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>GUIDE FULL NAME</label>
           <input type="text" name="name" placeholder="e.g. Wayan Sudarta" required>
@@ -164,7 +164,7 @@
     </div>
 
     <div class="table-container" style="margin-bottom:16px">
-      <table>
+      <table class="compact-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -188,7 +188,7 @@
 
     <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">+ Register New Driver</h4>
     <form action="{{ url_for('add_driver') }}" method="POST">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>DRIVER FULL NAME</label>
           <input type="text" name="name" placeholder="e.g. Ketut Arta" required>

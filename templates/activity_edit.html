@@ -11,12 +11,12 @@
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns: 1.3fr 1fr; gap:24px">
+<div class="activity-split">
   <!-- General Product Details Form -->
   <div class="card">
     <h3>Product Details & Description</h3>
     <form action="{{ url_for('update_activity', activity_id=activity.id) }}" method="POST">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>ACTIVITY CODE</label>
           <input type="text" name="code" value="{{ activity.code }}" required>
@@ -27,12 +27,12 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" style="margin-bottom:12px">
         <label>ACTIVITY TITLE / NAME</label>
         <input type="text" name="name" value="{{ activity.name }}" required>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>DEFAULT START TIME</label>
           <input type="text" name="start_time" value="{{ activity.start_time or '08:30' }}" placeholder="e.g. 08:30">
@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+      <div class="form-row-2">
         <div>
           <label>VALID FROM</label>
           <input type="date" name="rate_valid_from" value="{{ activity.rate_valid_from or '2026-01-01' }}">
@@ -54,22 +54,22 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" style="margin-bottom:12px">
         <label>FULL DESCRIPTION</label>
         <textarea name="description" rows="4">{{ activity.description or '' }}</textarea>
       </div>
 
-      <div class="field">
+      <div class="field" style="margin-bottom:12px">
         <label>INCLUSIONS (One item per line)</label>
         <textarea name="inclusions" rows="3" placeholder="Private transport&#10;Balinese lunch&#10;Mineral water">{{ activity.inclusions or '' }}</textarea>
       </div>
 
-      <div class="field">
+      <div class="field" style="margin-bottom:16px">
         <label>EXCLUSIONS (One item per line)</label>
         <textarea name="exclusions" rows="2" placeholder="Personal expenses&#10;Gratuities / tips">{{ activity.exclusions or '' }}</textarea>
       </div>
 
-      <button type="submit">Save Product Details</button>
+      <button type="submit" style="width:100%">Save Product Details</button>
     </form>
   </div>
 
@@ -83,11 +83,11 @@
 
       <form action="{{ url_for('update_activity_tiers', activity_id=activity.id) }}" method="POST">
         <div class="table-container" style="margin-bottom:16px">
-          <table>
+          <table class="compact-table">
             <thead>
               <tr>
-                <th>Min Pax</th>
-                <th>Max Pax</th>
+                <th>Min</th>
+                <th>Max</th>
                 <th>Price / Person (IDR)</th>
                 <th>Action</th>
               </tr>
@@ -96,16 +96,16 @@
               {% for t in tiers %}
                 <tr>
                   <td>
-                    <input type="number" name="tier_min_{{ t.id }}" value="{{ t.min_pax }}" min="1" style="width:70px; padding:4px 8px" required>
+                    <input type="number" name="tier_min_{{ t.id }}" value="{{ t.min_pax }}" min="1" style="width:60px; padding:6px" required>
                   </td>
                   <td>
-                    <input type="number" name="tier_max_{{ t.id }}" value="{{ t.max_pax or '' }}" min="1" placeholder="& up" style="width:70px; padding:4px 8px">
+                    <input type="number" name="tier_max_{{ t.id }}" value="{{ t.max_pax or '' }}" min="1" placeholder="+" style="width:60px; padding:6px">
                   </td>
                   <td>
-                    <input type="number" name="tier_price_{{ t.id }}" value="{{ t.price_per_person | int }}" step="1000" min="0" style="width:130px; padding:4px 8px; font-weight:700" required>
+                    <input type="number" name="tier_price_{{ t.id }}" value="{{ t.price_per_person | int }}" step="1000" min="0" style="min-width:110px; padding:6px; font-weight:700" required>
                   </td>
                   <td>
-                    <a href="{{ url_for('delete_activity_tier', activity_id=activity.id, tier_id=t.id) }}" onclick="return confirm('Remove this pricing tier?')" style="color:var(--critical); font-size:0.8rem; font-weight:700">Delete</a>
+                    <a href="{{ url_for('delete_activity_tier', activity_id=activity.id, tier_id=t.id) }}" onclick="return confirm('Remove this pricing tier?')" style="color:var(--critical); font-size:0.8rem; font-weight:700">Del</a>
                   </td>
                 </tr>
               {% endfor %}
@@ -119,17 +119,17 @@
       <div style="background:var(--surface-2); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border)">
         <h4 style="font-size:0.85rem; text-transform:uppercase; color:var(--ink-muted); margin:0 0 10px">+ Add New Price Tier</h4>
         <form action="{{ url_for('add_activity_tier', activity_id=activity.id) }}" method="POST">
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px">
+          <div class="form-row-2">
             <div>
               <label style="font-size:0.75rem">MIN PAX</label>
               <input type="number" name="min_pax" min="1" placeholder="e.g. 6" required>
             </div>
             <div>
-              <label style="font-size:0.75rem">MAX PAX (Leave empty for & up)</label>
+              <label style="font-size:0.75rem">MAX PAX (& up)</label>
               <input type="number" name="max_pax" min="1" placeholder="e.g. 6">
             </div>
           </div>
-          <div class="field">
+          <div class="field" style="margin-bottom:12px">
             <label style="font-size:0.75rem">PRICE PER PERSON (IDR)</label>
             <input type="number" name="price_per_person" step="1000" min="1000" placeholder="e.g. 850000" required>
           </div>

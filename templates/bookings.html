@@ -78,7 +78,7 @@
 <div class="card" id="new-booking" style="margin-top:32px">
   <h3>Create New Reservation</h3>
   <form action="{{ url_for('create_booking_route') }}" method="POST">
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:16px">
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ACTIVITY</label>
         <select name="activity_id" required>
@@ -96,7 +96,9 @@
           {% endfor %}
         </select>
       </div>
+    </div>
 
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ACTIVITY DATE</label>
         <input type="date" name="activity_date" required value="{{ today_date }}">
@@ -106,7 +108,9 @@
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PAX COUNT</label>
         <input type="number" name="pax_count" min="1" max="100" value="2" required>
       </div>
+    </div>
 
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PICKUP AREA</label>
         <select name="pickup_area_id">
@@ -123,7 +127,7 @@
       </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px">
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ASSIGN GUIDE</label>
         <select name="guide_id">
@@ -150,7 +154,7 @@
       <textarea name="special_requests" rows="2" placeholder="e.g. Vegetarian lunch, wheelchair assistance"></textarea>
     </div>
 
-    <button type="submit">Confirm & Save Booking</button>
+    <button type="submit" style="width:100%">Confirm & Save Booking</button>
   </form>
 </div>
 {% endblock %}

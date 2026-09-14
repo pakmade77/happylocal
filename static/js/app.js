@@ -20,13 +20,28 @@ function hlaToggleMobileNav() {
   if (!nav) return;
   const isOpen = nav.classList.contains('mobile-open');
   if (isOpen) {
-    nav.classList.remove('mobile-open');
-    if (backdrop) backdrop.classList.remove('active');
+    hlaCloseMobileNav();
   } else {
     nav.classList.add('mobile-open');
     if (backdrop) backdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
 }
+
+function hlaCloseMobileNav() {
+  const nav = document.getElementById('main-nav');
+  const backdrop = document.querySelector('.mobile-nav-backdrop');
+  if (nav) nav.classList.remove('mobile-open');
+  if (backdrop) backdrop.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close mobile nav on escape key press
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    hlaCloseMobileNav();
+  }
+});
 
 function showToast(message, type = 'info') {
   let container = document.querySelector('.toast-container');

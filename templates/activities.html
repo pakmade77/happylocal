@@ -14,11 +14,11 @@
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:20px; margin-bottom:32px">
+<div class="activities-grid">
   {% for a in activities_with_tiers %}
     <div class="card" style="display:flex; flex-direction:column; justify-content:space-between">
       <div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:8px">
           <div>
             <span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em">{{ a.category }}</span>
             <h3 style="margin:4px 0 6px">{{ a.name }}</h3>
@@ -35,7 +35,7 @@
 
         <h4 style="font-size:0.8rem; text-transform:uppercase; color:var(--ink-muted); margin-bottom:8px">Tiered Pricing Per Person</h4>
         <div class="table-container" style="margin-bottom:14px">
-          <table>
+          <table class="compact-table">
             <thead>
               <tr>
                 <th>Group Size (Pax)</th>
@@ -60,10 +60,10 @@
         </div>
       </div>
 
-      <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; justify-content:space-between; align-items:center; gap:8px">
-        <a href="{{ url_for('edit_activity_view', activity_id=a.id) }}" class="btn secondary" style="padding:6px 12px; font-size:0.8rem; flex:1">
+      <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap">
+        <a href="{{ url_for('edit_activity_view', activity_id=a.id) }}" class="btn secondary" style="padding:6px 12px; font-size:0.8rem; flex:1; min-width:140px">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          <span>Edit Rates & Details</span>
+          <span>Edit Rates</span>
         </a>
         <a href="{{ url_for('bookings') }}#new-booking" class="btn" style="padding:6px 14px; font-size:0.8rem">Book</a>
       </div>
@@ -75,7 +75,7 @@
 <div class="card" id="new-activity">
   <h3>+ Add New Activity / Tour Experience</h3>
   <form action="{{ url_for('create_activity') }}" method="POST">
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:14px">
+    <div class="form-row-2">
       <div>
         <label>ACTIVITY CODE</label>
         <input type="text" name="code" placeholder="e.g. RAFTING-AYUNG" required>
@@ -84,6 +84,9 @@
         <label>ACTIVITY NAME</label>
         <input type="text" name="name" placeholder="e.g. Ayung River White Water Rafting" required>
       </div>
+    </div>
+
+    <div class="form-row-2">
       <div>
         <label>CATEGORY</label>
         <input type="text" name="category" placeholder="e.g. Adventure Experience" required>
@@ -94,7 +97,7 @@
       </div>
     </div>
 
-    <div class="field">
+    <div class="field" style="margin-bottom:16px">
       <label>DESCRIPTION</label>
       <textarea name="description" rows="2" placeholder="Brief summary of the experience..."></textarea>
     </div>

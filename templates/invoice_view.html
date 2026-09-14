@@ -32,8 +32,20 @@
     th { background: #f1f5f9; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; color: #475569; }
     .bank-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px 20px; margin-top: 24px; }
     .bank-box h4 { margin: 0 0 6px; color: #166534; }
-    .actions-bar { max-width: 800px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; }
     .print-btn { background: #0b4972; color: #ffffff; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+    
+    @media (max-width: 640px) {
+      body { padding: 16px 10px; }
+      .invoice-card { padding: 20px 16px; border-radius: 8px; }
+      .header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+      .header > div:last-child { text-align: left; }
+      .grid-2 { grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
+      .grid-2 > div:last-child { text-align: left; }
+      .actions-bar { flex-direction: column; gap: 12px; align-items: stretch; text-align: center; }
+      .print-btn { width: 100%; }
+      table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 480px; }
+    }
+
     @media print {
       body { background: #ffffff; padding: 0; }
       .actions-bar { display: none; }

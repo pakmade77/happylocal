@@ -64,7 +64,7 @@
 <div class="card" id="new-partner" style="margin-top:32px">
   <h3>Add New Travel Agent / Partner</h3>
   <form action="{{ url_for('create_partner_route') }}" method="POST">
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px">
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PARTNER CODE</label>
         <input type="text" name="code" placeholder="e.g. BALI-DISC" required>
@@ -73,6 +73,9 @@
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">CONTACT PERSON / NAME</label>
         <input type="text" name="name" placeholder="e.g. John Doe" required>
       </div>
+    </div>
+
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">COMPANY NAME</label>
         <input type="text" name="company" placeholder="e.g. Bali Discovery DMC">
@@ -81,6 +84,9 @@
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">EMAIL</label>
         <input type="email" name="email" placeholder="inbound@agency.com">
       </div>
+    </div>
+
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PHONE</label>
         <input type="text" name="phone" placeholder="+62 812 ...">
@@ -90,7 +96,8 @@
         <input type="number" name="payment_terms_days" value="0" min="0">
       </div>
     </div>
-    <button type="submit">Save Partner</button>
+
+    <button type="submit" style="width:100%">Save Partner</button>
   </form>
 </div>
 {% endblock %}

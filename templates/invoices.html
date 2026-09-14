@@ -82,7 +82,7 @@
 <div class="card" id="record-payment" style="margin-top:24px">
   <h3>Record Bank Settlement / Payment</h3>
   <form action="{{ url_for('record_payment_route') }}" method="POST">
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:16px">
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">SELECT INVOICE</label>
         <select name="invoice_id" required>
@@ -98,7 +98,9 @@
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PAYMENT DATE</label>
         <input type="date" name="payment_date" required value="{{ today_date }}">
       </div>
+    </div>
 
+    <div class="form-row-2">
       <div>
         <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">AMOUNT (IDR)</label>
         <input type="number" name="amount" required step="1000" min="1000">
@@ -109,7 +111,8 @@
         <input type="text" name="bank_reference" placeholder="e.g. BCA-TRX-9981">
       </div>
     </div>
-    <button type="submit">Record Payment</button>
+
+    <button type="submit" style="width:100%">Record Payment</button>
   </form>
 </div>
 {% endblock %}
