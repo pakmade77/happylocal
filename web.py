@@ -48,14 +48,14 @@ def login():
             flash("Welcome! Authentication successful.")
             return redirect(next_url)
         else:
-            error = "Password tidak sesuai. Silakan coba lagi."
+            error = "Invalid access password. Please try again."
     return render_template("login.html", error=error, logo_data_uri=LOGO_DATA_URI)
 
 
 @flask_app.route("/logout")
 def logout():
     session.pop("authenticated", None)
-    flash("Anda telah berhasil logout.")
+    flash("You have been signed out.")
     return redirect(url_for("login"))
 
 
