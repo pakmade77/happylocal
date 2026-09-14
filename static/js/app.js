@@ -14,6 +14,20 @@ function hlaToggleNavLayout() {
   try { localStorage.setItem('hla-nav-layout', next); } catch (e) {}
 }
 
+function hlaToggleMobileNav() {
+  const nav = document.getElementById('main-nav');
+  const backdrop = document.querySelector('.mobile-nav-backdrop');
+  if (!nav) return;
+  const isOpen = nav.classList.contains('mobile-open');
+  if (isOpen) {
+    nav.classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.remove('active');
+  } else {
+    nav.classList.add('mobile-open');
+    if (backdrop) backdrop.classList.add('active');
+  }
+}
+
 function showToast(message, type = 'info') {
   let container = document.querySelector('.toast-container');
   if (!container) {

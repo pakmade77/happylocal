@@ -10,7 +10,7 @@ import json
 import sqlite3
 from datetime import datetime, timedelta
 from flask import (
-    Flask, render_template, request, redirect, url_for, flash, jsonify
+    Flask, render_template, request, redirect, url_for, flash, jsonify, session
 )
 
 import app as erp
@@ -20,9 +20,43 @@ flask_app = Flask(
     template_folder="templates",
     static_folder="static"
 )
-flask_app.secret_key = "happy-local-adventure-secret-key-2026"
+flask_app.secret_key = "happy-local-adventure-secret-key-2026-auth"
 
+ACCESS_PASSWORD = os.getenv("APP_PASSWORD", "Bara-Kayaraya")
 LOGO_DATA_URI = erp.LOGO_DATA_URI
+
+
+@flask_app.before_request
+def check_auth():
+    # Allow login page and static assets without session
+    if request.endpoint in ("login", "static") or (request.path.startswith("/static/")):
+        return None
+    if not session.get("authenticated"):
+        return redirect(url_for("login", next=request.path))
+
+
+@flask_app.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("authenticated"):
+        return redirect(url_for("index"))
+    error = None
+    if request.method == "POST":
+        pwd = request.form.get("password", "").strip()
+        if pwd == ACCESS_PASSWORD:
+            session["authenticated"] = True
+            next_url = request.args.get("next") or url_for("index")
+            flash("Welcome! Authentication successful.")
+            return redirect(next_url)
+        else:
+            error = "Password tidak sesuai. Silakan coba lagi."
+    return render_template("login.html", error=error, logo_data_uri=LOGO_DATA_URI)
+
+
+@flask_app.route("/logout")
+def logout():
+    session.pop("authenticated", None)
+    flash("Anda telah berhasil logout.")
+    return redirect(url_for("login"))
 
 
 def get_db():

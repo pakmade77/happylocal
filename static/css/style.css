@@ -203,6 +203,40 @@ nav .nav-actions {
   border-color: var(--accent);
 }
 
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: #f87171;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  font-weight: 700;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+:root[data-theme="light"] .logout-btn {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+:root[data-theme="light"] .logout-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
 /* -------------------------------------------------------------
    Sidebar Mode — High-Contrast Dark Obsidian / Royal Navy Rail
 ------------------------------------------------------------- */
@@ -715,8 +749,202 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.9rem;
 }
 
-@media (max-width: 800px) {
-  .calendar-grid { grid-template-columns: repeat(2, 1fr); }
-  nav { margin: 10px 10px 0; padding: 8px 12px; }
-  main { padding: 0 12px; }
+/* -------------------------------------------------------------
+   Mobile Header & Responsive Navigation Drawer
+ ------------------------------------------------------------- */
+.mobile-header {
+  display: none;
+}
+.mobile-nav-backdrop {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  html[data-nav="sidebar"] body {
+    padding-left: 0 !important;
+  }
+  
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, rgba(16, 20, 28, 0.96) 0%, rgba(10, 12, 18, 0.98) 100%);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border-strong);
+    position: sticky;
+    top: 0;
+    z-index: 150;
+  }
+
+  :root[data-theme="light"] .mobile-header {
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom-color: var(--border);
+  }
+
+  .mobile-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    color: var(--ink);
+    font-size: 1.05rem;
+  }
+
+  .mobile-header .brand img {
+    height: 28px;
+    width: auto;
+    border-radius: 6px;
+  }
+
+  .mobile-nav-toggle {
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .mobile-nav-toggle:hover {
+    background: var(--surface-hover);
+  }
+
+  .desktop-brand {
+    display: none !important;
+  }
+
+  nav#main-nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: -290px !important;
+    width: 270px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 24px 16px !important;
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border-strong) !important;
+    border-left: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.6) !important;
+    z-index: 200 !important;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow-y: auto !important;
+  }
+
+  nav#main-nav.mobile-open {
+    left: 0 !important;
+  }
+
+  .mobile-nav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 190;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .mobile-nav-backdrop.active {
+    display: block;
+    opacity: 1;
+  }
+
+  nav a.link {
+    padding: 12px 14px !important;
+    font-size: 0.95rem !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
+  nav .spacer {
+    display: none;
+  }
+
+  nav .nav-actions {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  main {
+    padding: 16px 12px 40px !important;
+    max-width: 100% !important;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-3, .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .table-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  .btn-group {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .calendar-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .kpi-val {
+    font-size: 1.45rem !important;
+  }
+
+  .page-title {
+    font-size: 1.35rem !important;
+  }
+
+  .card {
+    padding: 16px !important;
+  }
 }
