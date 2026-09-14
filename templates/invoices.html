@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Invoices & Settlements</h1>
+    <span class="muted" style="font-size:0.88rem">Consolidated billing for travel agents and BCA settlement tracking</span>
+  </div>
+  <div>
+    <a href="#new-invoice" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Generate Invoice</span>
+    </a>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="tabs">
+    <button class="active" data-filter="all">All ({{ invoices_list | length }})</button>
+    <button data-filter="sent">Sent / Pending</button>
+    <button data-filter="paid">Paid</button>
+    <button data-filter="partiallypaid">Partial</button>
+    <button data-filter="overdue">Overdue</button>
+  </div>
+
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="invoice-search" placeholder="Search invoice #, agent...">
+  </div>
+</div>
+
+<div class="table-container">
+  <table id="invoices-table">
+    <thead>
+      <tr>
+        <th>Invoice #</th>
+        <th>Partner (Agent)</th>
+        <th>Date</th>
+        <th>Due Date</th>
+        <th>Total Amount</th>
+        <th>Paid Amount</th>
+        <th>Balance Due</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inv in invoices_list %}
+        <tr data-status="{{ inv.status }}">
+          <td><strong>{{ inv.invoice_number }}</strong></td>
+          <td>{{ inv.partner_name }}</td>
+          <td>{{ inv.invoice_date }}</td>
+          <td>
+            <span {% if inv.is_overdue %}style="color:var(--critical); font-weight:700"{% endif %}>
+              {{ inv.due_date }}
+            </span>
+          </td>
+          <td>IDR {{ "{:,.0f}".format(inv.total_amount) }}</td>
+          <td>IDR {{ "{:,.0f}".format(inv.paid_amount) }}</td>
+          <td>
+            <strong {% if inv.balance_due > 0 %}style="color:var(--badge-warn-fg)"{% endif %}>
+              IDR {{ "{:,.0f}".format(inv.balance_due) }}
+            </strong>
+          </td>
+          <td><span class="badge {{ inv.status }}">{{ inv.status }}</span></td>
+          <td>
+            <div style="display:flex; gap:6px">
+              <a href="{{ url_for('view_invoice', invoice_id=inv.id) }}" target="_blank" class="btn secondary" style="padding:4px 10px; font-size:0.75rem">View / Print</a>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr class="no-filter">
+          <td colspan="9" style="text-align:center; padding:32px; color:var(--ink-muted)">No invoices generated yet</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Record Payment Card -->
+<div class="card" id="record-payment" style="margin-top:24px">
+  <h3>Record Bank Settlement / Payment</h3>
+  <form action="{{ url_for('record_payment_route') }}" method="POST">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:16px">
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">SELECT INVOICE</label>
+        <select name="invoice_id" required>
+          {% for inv in invoices_list %}
+            {% if inv.status != 'Paid' %}
+              <option value="{{ inv.id }}">{{ inv.invoice_number }} — {{ inv.partner_name }} (Due: IDR {{ "{:,.0f}".format(inv.balance_due) }})</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PAYMENT DATE</label>
+        <input type="date" name="payment_date" required value="{{ today_date }}">
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">AMOUNT (IDR)</label>
+        <input type="number" name="amount" required step="1000" min="1000">
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">BANK REFERENCE / TRX ID</label>
+        <input type="text" name="bank_reference" placeholder="e.g. BCA-TRX-9981">
+      </div>
+    </div>
+    <button type="submit">Record Payment</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Dispatch & Operations Calendar</h1>
+    <span class="muted" style="font-size:0.88rem">Resource Allocation & Tour Schedule for Guides & Drivers</span>
+  </div>
+  <div style="display:flex; gap:10px">
+    <a href="{{ url_for('calendar_view', offset=prev_offset) }}" class="btn secondary" style="padding:8px 14px">&larr; Previous 7 Days</a>
+    <a href="{{ url_for('calendar_view', offset=0) }}" class="btn secondary" style="padding:8px 14px">Today</a>
+    <a href="{{ url_for('calendar_view', offset=next_offset) }}" class="btn secondary" style="padding:8px 14px">Next 7 Days &rarr;</a>
+  </div>
+</div>
+
+<!-- Calendar 7-Day Grid -->
+<div class="calendar-grid">
+  {% for day in calendar_days %}
+    <div class="cal-day-card {% if day.is_today %}today{% endif %}">
+      <div class="cal-day-header">
+        <span>{{ day.day_name }}</span>
+        <span style="color:var(--ink); font-weight:800">{{ day.date_str }}</span>
+      </div>
+
+      <div style="flex:1; overflow-y:auto">
+        {% for b in day.bookings %}
+          <div class="cal-item" style="border-left-color: {% if b.guide_name and b.driver_name %}var(--good){% else %}var(--accent){% endif %}">
+            <div class="cal-title">{{ b.activity_name }}</div>
+            <div class="cal-sub">
+              <strong>{{ b.pax_count }} pax</strong> &bull; {{ b.pickup_time or '08:30' }}<br>
+              Guide: <span style="color:var(--ink)">{{ b.guide_name or '⚠️ Unassigned' }}</span><br>
+              Driver: <span style="color:var(--ink)">{{ b.driver_name or '⚠️ Unassigned' }}</span>
+            </div>
+          </div>
+        {% else %}
+          <div style="text-align:center; padding:24px 0; color:var(--ink-muted); font-size:0.75rem">No tours</div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Resource Summary Card -->
+<div class="card" style="margin-top:24px">
+  <h3>Active Field Resources</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+        <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin:0">Registered Guides</h4>
+      </div>
+      <div class="table-container" style="margin-bottom:12px">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Languages</th><th>Phone</th></tr>
+          </thead>
+          <tbody>
+            {% for g in guides_list %}
+              <tr>
+                <td><strong>{{ g.name }}</strong></td>
+                <td>{{ g.languages or 'Indonesian, English' }}</td>
+                <td>{{ g.phone or '-' }}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="3" class="muted" style="text-align:center">No guides registered yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick Add Guide Form -->
+      <form action="{{ url_for('add_guide') }}" method="POST" style="background:var(--surface-2); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border)">
+        <input type="hidden" name="redirect_to" value="calendar">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--ink-muted); margin-bottom:6px">+ QUICK ADD GUIDE</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px">
+          <input type="text" name="name" placeholder="Guide Full Name" required>
+          <input type="text" name="phone" placeholder="Phone / WA">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr auto; gap:8px">
+          <input type="text" name="languages" placeholder="Languages (e.g. English, French)">
+          <button type="submit" style="padding:6px 12px; font-size:0.78rem">Save Guide</button>
+        </div>
+      </form>
+    </div>
+
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+        <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin:0">Registered Drivers & Vehicles</h4>
+      </div>
+      <div class="table-container" style="margin-bottom:12px">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Vehicle</th><th>Phone</th></tr>
+          </thead>
+          <tbody>
+            {% for d in drivers_list %}
+              <tr>
+                <td><strong>{{ d.name }}</strong></td>
+                <td>{{ d.vehicle_info or 'Toyota Innova' }}</td>
+                <td>{{ d.phone or '-' }}</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="3" class="muted" style="text-align:center">No drivers registered yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Quick Add Driver Form -->
+      <form action="{{ url_for('add_driver') }}" method="POST" style="background:var(--surface-2); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border)">
+        <input type="hidden" name="redirect_to" value="calendar">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--ink-muted); margin-bottom:6px">+ QUICK ADD DRIVER</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px">
+          <input type="text" name="name" placeholder="Driver Full Name" required>
+          <input type="text" name="phone" placeholder="Phone / WA">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr auto; gap:8px">
+          <input type="text" name="vehicle_info" placeholder="Vehicle info (e.g. Innova DK 1234 XX)">
+          <button type="submit" style="padding:6px 12px; font-size:0.78rem">Save Driver</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Management & Financial Reports</h1>
+    <span class="muted" style="font-size:0.88rem">Performance analytics, visual revenue distribution, profitability per booking, and agent breakdowns</span>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="tabs">
+    <a href="{{ url_for('reports', view='revenue_activity') }}" class="{% if current_view == 'revenue_activity' %}active{% endif %}">Revenue by Activity</a>
+    <a href="{{ url_for('reports', view='revenue_partner') }}" class="{% if current_view == 'revenue_partner' %}active{% endif %}">Revenue by Partner</a>
+    <a href="{{ url_for('reports', view='profitability') }}" class="{% if current_view == 'profitability' %}active{% endif %}">Booking Profitability</a>
+    <a href="{{ url_for('reports', view='cancellations') }}" class="{% if current_view == 'cancellations' %}active{% endif %}">Cancellations & Penalties</a>
+  </div>
+</div>
+
+<!-- Summary Metric Cards -->
+<div class="kpis" style="margin-bottom:24px">
+  <div class="kpi" style="border-left-color:var(--good)">
+    <div class="label">Total Amount</div>
+    <div class="value">IDR {{ "{:,.0f}".format(total_sum) }}</div>
+    <div class="delta" style="color:var(--good)">
+      <span>Filtered Dataset Summary</span>
+    </div>
+  </div>
+
+  {% if current_view in ['revenue_activity', 'revenue_partner'] %}
+    <div class="kpi" style="border-left-color:var(--accent)">
+      <div class="label">Total Guests Served</div>
+      <div class="value">{{ total_pax }} Pax</div>
+      <div class="delta" style="color:var(--ink-muted)">
+        <span>Across confirmed tours</span>
+      </div>
+    </div>
+    <div class="kpi" style="border-left-color:var(--badge-info-fg)">
+      <div class="label">Avg Revenue / Pax</div>
+      <div class="value">
+        {% if total_pax > 0 %}
+          IDR {{ "{:,.0f}".format(total_sum / total_pax) }}
+        {% else %}
+          IDR 0
+        {% endif %}
+      </div>
+      <div class="delta" style="color:var(--badge-info-fg)">
+        <span>Yield per traveller</span>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Main Content Card -->
+<div class="card">
+  {% if current_view == 'revenue_activity' %}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">
+      <h3>Revenue by Tour Activity</h3>
+      <span class="muted" style="font-size:0.8rem">Visual Ranking & Proportions</span>
+    </div>
+
+    <!-- Visual Bar Chart -->
+    <div class="bar-list">
+      {% for r in report_data %}
+        {% set pct = (r.total_revenue / max_val * 100) if max_val > 0 else 0 %}
+        <div class="bar-row">
+          <div class="bar-label" title="{{ r.activity_name }}">{{ r.activity_name }}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: {{ pct }}%"></div>
+          </div>
+          <div class="bar-value">IDR {{ "{:,.0f}".format(r.total_revenue) }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="table-container" style="margin-top:24px">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity Name</th>
+            <th>Total Bookings</th>
+            <th>Total Pax</th>
+            <th>Total Revenue (IDR)</th>
+            <th>Share %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in report_data %}
+            {% set share = (r.total_revenue / total_sum * 100) if total_sum > 0 else 0 %}
+            <tr>
+              <td><strong>{{ r.activity_name }}</strong></td>
+              <td>{{ r.booking_count }}</td>
+              <td>{{ r.total_pax }} pax</td>
+              <td><strong>IDR {{ "{:,.0f}".format(r.total_revenue) }}</strong></td>
+              <td><span class="badge Primary">{{ "{:.1f}".format(share) }}%</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% elif current_view == 'revenue_partner' %}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px">
+      <h3>Revenue by Travel Agent / DMC</h3>
+      <span class="muted" style="font-size:0.8rem">Top Producing Agents</span>
+    </div>
+
+    <!-- Visual Bar Chart -->
+    <div class="bar-list">
+      {% for r in report_data %}
+        {% set pct = (r.total_revenue / max_val * 100) if max_val > 0 else 0 %}
+        <div class="bar-row">
+          <div class="bar-label" title="{{ r.partner_name }}">{{ r.partner_name }}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: {{ pct }}%; background: linear-gradient(90deg, #0ca387, #34d399)"></div>
+          </div>
+          <div class="bar-value">IDR {{ "{:,.0f}".format(r.total_revenue) }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="table-container" style="margin-top:24px">
+      <table>
+        <thead>
+          <tr>
+            <th>Partner (Agent) Name</th>
+            <th>Total Bookings</th>
+            <th>Total Pax</th>
+            <th>Total Revenue (IDR)</th>
+            <th>Share %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in report_data %}
+            {% set share = (r.total_revenue / total_sum * 100) if total_sum > 0 else 0 %}
+            <tr>
+              <td><strong>{{ r.partner_name }}</strong></td>
+              <td>{{ r.booking_count }}</td>
+              <td>{{ r.total_pax }} pax</td>
+              <td><strong>IDR {{ "{:,.0f}".format(r.total_revenue) }}</strong></td>
+              <td><span class="badge Primary">{{ "{:.1f}".format(share) }}%</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% elif current_view == 'profitability' %}
+    <h3>Booking Gross Margin & Profitability</h3>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Activity</th>
+            <th>Date</th>
+            <th>Pax</th>
+            <th>Revenue (IDR)</th>
+            <th>Direct Expenses (IDR)</th>
+            <th>Gross Margin (IDR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in report_data %}
+            <tr>
+              <td><strong>{{ r.booking_code }}</strong></td>
+              <td>{{ r.activity_name }}</td>
+              <td>{{ r.activity_date }}</td>
+              <td>{{ r.pax_count }} pax</td>
+              <td>IDR {{ "{:,.0f}".format(r.revenue) }}</td>
+              <td style="color:var(--critical)">IDR {{ "{:,.0f}".format(r.direct_expenses) }}</td>
+              <td><strong style="color:var(--good)">IDR {{ "{:,.0f}".format(r.gross_margin) }}</strong></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% elif current_view == 'cancellations' %}
+    <h3>Cancellations & Contract Penalty Records</h3>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Booking Code</th>
+            <th>Activity</th>
+            <th>Partner</th>
+            <th>Cancelled At</th>
+            <th>Days Before</th>
+            <th>Penalty %</th>
+            <th>Fee Amount (IDR)</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in report_data %}
+            <tr>
+              <td><strong>{{ r.booking_code }}</strong></td>
+              <td>{{ r.activity_name }}</td>
+              <td>{{ r.partner_name }}</td>
+              <td>{{ r.cancelled_at }}</td>
+              <td>{{ r.days_before_activity }} days</td>
+              <td><strong>{{ "{:.0f}".format(r.fee_percentage) }}%</strong></td>
+              <td style="color:var(--badge-warn-fg)"><strong>IDR {{ "{:,.0f}".format(r.fee_amount) }}</strong></td>
+              <td><span class="muted">{{ r.reason or '-' }}</span></td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="8" style="text-align:center; padding:32px; color:var(--ink-muted)">No cancellations recorded</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

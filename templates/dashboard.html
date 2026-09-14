@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    <span class="muted" style="font-size:0.88rem">Happy Local Adventure Operations & Financial Overview</span>
+  </div>
+  <div>
+    <a href="{{ url_for('bookings') }}#new" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      <span>New Booking</span>
+    </a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpis">
+  <div class="kpi" style="border-left-color: var(--good)">
+    <div class="label">Total Revenue</div>
+    <div class="value">IDR {{ "{:,.0f}".format(total_revenue) }}</div>
+    <div class="delta" style="color:var(--good)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      <span>Confirmed & Completed</span>
+    </div>
+  </div>
+
+  <div class="kpi" style="border-left-color: var(--accent)">
+    <div class="label">Upcoming Tours</div>
+    <div class="value">{{ upcoming_count }}</div>
+    <div class="delta" style="color:var(--ink-muted)">
+      <span>{{ total_pax_upcoming }} total pax booked</span>
+    </div>
+  </div>
+
+  <div class="kpi" style="border-left-color: var(--badge-warn-fg)">
+    <div class="label">Outstanding AR</div>
+    <div class="value">IDR {{ "{:,.0f}".format(outstanding_balance) }}</div>
+    <div class="delta" style="color:var(--badge-warn-fg)">
+      <span>{{ pending_invoices_count }} unpaid invoices</span>
+    </div>
+  </div>
+
+  <div class="kpi" style="border-left-color: var(--badge-info-fg)">
+    <div class="label">Active Partners</div>
+    <div class="value">{{ partner_count }}</div>
+    <div class="delta" style="color:var(--ink-muted)">
+      <span>Contract Agents / DMCs</span>
+    </div>
+  </div>
+</div>
+
+<!-- Charts & Quick Booking Row -->
+<div style="display:grid; grid-template-columns: 2fr 1.2fr; gap: 24px; margin-bottom: 24px;">
+  <div class="card" style="margin-bottom:0">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+      <h3>Revenue Overview</h3>
+      <span class="muted" style="font-size:0.8rem">30-Day Trend</span>
+    </div>
+    {{ chart_svg | safe }}
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h3>Quick Booking Quote</h3>
+    <form action="{{ url_for('create_quick_booking') }}" method="POST" id="quick-booking-form">
+      <div style="margin-bottom:14px">
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">SELECT ACTIVITY</label>
+        <select name="activity_id" id="qb-activity" required onchange="updateQuickQuote()">
+          {% for a in activities_list %}
+            <option value="{{ a.id }}" data-category="{{ a.category }}">{{ a.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">TRAVEL AGENT / PARTNER</label>
+        <select name="partner_id" required>
+          {% for p in partners_list %}
+            <option value="{{ p.id }}">{{ p.name }} ({{ p.company or p.code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px">
+        <div>
+          <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">DATE</label>
+          <input type="date" name="activity_date" value="{{ today_date }}" required>
+        </div>
+        <div>
+          <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PAX COUNT</label>
+          <input type="number" name="pax_count" id="qb-pax" min="1" max="50" value="2" required oninput="updateQuickQuote()">
+        </div>
+      </div>
+
+      <div style="background:var(--surface-2); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px; border:1px solid var(--border)">
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem">
+          <span style="color:var(--ink-muted)">Estimated Subtotal:</span>
+          <strong id="qb-preview" style="color:var(--accent); font-size:1.05rem">Calculating...</strong>
+        </div>
+      </div>
+
+      <button type="submit" style="width:100%">Create Booking</button>
+    </form>
+  </div>
+</div>
+
+<!-- Upcoming Tours Table -->
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+    <h3>Upcoming Operational Schedule</h3>
+    <a href="{{ url_for('calendar_view') }}" class="btn secondary" style="padding:6px 12px; font-size:0.8rem">Open Dispatch Board &rarr;</a>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Activity</th>
+          <th>Date & Time</th>
+          <th>Pax</th>
+          <th>Partner</th>
+          <th>Guide</th>
+          <th>Driver</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in upcoming_tours %}
+          <tr>
+            <td><strong>{{ b.booking_code }}</strong></td>
+            <td>{{ b.activity_name }}</td>
+            <td>{{ b.activity_date }} {% if b.pickup_time %}<span class="muted">({{ b.pickup_time }})</span>{% endif %}</td>
+            <td><strong>{{ b.pax_count }}</strong> pax</td>
+            <td>{{ b.partner_name }}</td>
+            <td>{{ b.guide_name or '<span class="muted">Unassigned</span>' | safe }}</td>
+            <td>{{ b.driver_name or '<span class="muted">Unassigned</span>' | safe }}</td>
+            <td><span class="badge {{ b.status }}">{{ b.status }}</span></td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center; padding:32px; color:var(--ink-muted)">No upcoming tours scheduled</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const tiersData = {{ tiers_json | safe }};
+
+  function updateQuickQuote() {
+    const actId = parseInt(document.getElementById('qb-activity').value);
+    const pax = parseInt(document.getElementById('qb-pax').value) || 1;
+    const tiers = tiersData[actId] || [];
+
+    let matchedRate = 0;
+    for (const t of tiers) {
+      if (pax >= t.min_pax && (t.max_pax === null || pax <= t.max_pax)) {
+        matchedRate = t.price;
+        break;
+      }
+    }
+    const total = matchedRate * pax;
+    document.getElementById('qb-preview').textContent = 'IDR ' + total.toLocaleString('en-US');
+  }
+
+  document.addEventListener('DOMContentLoaded', updateQuickQuote);
+</script>
+{% endblock %}

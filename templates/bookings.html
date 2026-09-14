@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Bookings Management</h1>
+    <span class="muted" style="font-size:0.88rem">All reservation orders, pricing snapshots & tour statuses</span>
+  </div>
+  <div>
+    <a href="#new-booking" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Create New Booking</span>
+    </a>
+  </div>
+</div>
+
+<!-- Filter Bar with Tabs and Instant Search -->
+<div class="filter-bar">
+  <div class="tabs">
+    <button class="active" data-filter="all">All ({{ bookings_list | length }})</button>
+    <button data-filter="confirmed">Confirmed</button>
+    <button data-filter="pending">Pending</button>
+    <button data-filter="completed">Completed</button>
+    <button data-filter="cancelled">Cancelled</button>
+  </div>
+
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="booking-search" placeholder="Search code, agent, activity...">
+  </div>
+</div>
+
+<div class="table-container">
+  <table id="bookings-table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Activity</th>
+        <th>Date</th>
+        <th>Partner (Agent)</th>
+        <th>Pax</th>
+        <th>Rate / Pax</th>
+        <th>Total (IDR)</th>
+        <th>Guide & Driver</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bookings_list %}
+        <tr data-status="{{ b.status }}">
+          <td><strong>{{ b.booking_code }}</strong></td>
+          <td>{{ b.activity_name }}</td>
+          <td>{{ b.activity_date }}</td>
+          <td>{{ b.partner_name }}</td>
+          <td><strong>{{ b.pax_count }}</strong> pax</td>
+          <td>{{ "{:,.0f}".format(b.price_per_person) }}</td>
+          <td><strong>{{ "{:,.0f}".format(b.subtotal) }}</strong></td>
+          <td>
+            <span style="font-size:0.8rem">
+              G: {{ b.guide_name or '-' }} | D: {{ b.driver_name or '-' }}
+            </span>
+          </td>
+          <td><span class="badge {{ b.status }}">{{ b.status }}</span></td>
+        </tr>
+      {% else %}
+        <tr class="no-filter">
+          <td colspan="9" style="text-align:center; padding:36px; color:var(--ink-muted)">No bookings found in database</td>
+        </tr>
+      {% endfor %}
+      <tr id="table-empty-msg" class="no-filter" style="display:none">
+        <td colspan="9" style="text-align:center; padding:32px; color:var(--ink-muted)">No bookings match your search query</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Create New Booking Form Card -->
+<div class="card" id="new-booking" style="margin-top:32px">
+  <h3>Create New Reservation</h3>
+  <form action="{{ url_for('create_booking_route') }}" method="POST">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:16px">
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ACTIVITY</label>
+        <select name="activity_id" required>
+          {% for a in activities_list %}
+            <option value="{{ a.id }}">{{ a.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">TRAVEL AGENT / PARTNER</label>
+        <select name="partner_id" required>
+          {% for p in partners_list %}
+            <option value="{{ p.id }}">{{ p.name }} ({{ p.company or p.code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ACTIVITY DATE</label>
+        <input type="date" name="activity_date" required value="{{ today_date }}">
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PAX COUNT</label>
+        <input type="number" name="pax_count" min="1" max="100" value="2" required>
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PICKUP AREA</label>
+        <select name="pickup_area_id">
+          <option value="">-- Standard Private Transfer --</option>
+          {% for pa in pickup_areas %}
+            <option value="{{ pa.id }}">{{ pa.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PICKUP TIME</label>
+        <input type="text" name="pickup_time" placeholder="e.g. 08:30">
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px">
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ASSIGN GUIDE</label>
+        <select name="guide_id">
+          <option value="">-- Select Guide Later --</option>
+          {% for g in guides_list %}
+            <option value="{{ g.id }}">{{ g.name }} ({{ g.languages }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">ASSIGN DRIVER</label>
+        <select name="driver_id">
+          <option value="">-- Select Driver Later --</option>
+          {% for d in drivers_list %}
+            <option value="{{ d.id }}">{{ d.name }} ({{ d.vehicle_info }})</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">SPECIAL REQUESTS / DIETARY RESTRICTIONS</label>
+      <textarea name="special_requests" rows="2" placeholder="e.g. Vegetarian lunch, wheelchair assistance"></textarea>
+    </div>
+
+    <button type="submit">Confirm & Save Booking</button>
+  </form>
+</div>
+{% endblock %}

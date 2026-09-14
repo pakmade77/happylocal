@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# SQLite database & local logs
+*.db
+*.sqlite3
+*.log
+server.out.log
+server.err.log
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+
+# Vercel
+.vercel/

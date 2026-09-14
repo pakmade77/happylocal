@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Invoice {{ invoice.invoice_number }} — Happy Local Adventure</title>
+  <link rel="icon" type="image/png" href="{{ logo_data_uri }}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .invoice-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px; border-bottom: 2px solid #0f172a; padding-bottom: 24px; }
+    .header img { height: 44px; }
+    .invoice-title { font-size: 1.8rem; font-weight: 800; color: #0b4972; margin: 0; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 0.88rem; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f1f5f9; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; color: #475569; }
+    .bank-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px 20px; margin-top: 24px; }
+    .bank-box h4 { margin: 0 0 6px; color: #166534; }
+    .actions-bar { max-width: 800px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; }
+    .print-btn { background: #0b4972; color: #ffffff; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .actions-bar { display: none; }
+      .invoice-card { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="actions-bar">
+    <a href="{{ url_for('invoices') }}" style="color:#0b4972; font-weight:600; text-decoration:none">&larr; Back to Invoices</a>
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <div class="invoice-card">
+    <div class="header">
+      <div>
+        <img src="{{ logo_data_uri }}" alt="Happy Local Adventure">
+        <div style="margin-top:8px; font-size:0.85rem; color:#475569">
+          <strong>Happy Local Adventure Bali</strong><br>
+          B2B Tour Operator & Experience Provider
+        </div>
+      </div>
+      <div style="text-align:right">
+        <h1 class="invoice-title">INVOICE</h1>
+        <div style="font-size:1.1rem; font-weight:700; margin:4px 0">{{ invoice.invoice_number }}</div>
+        <div style="font-size:0.85rem; color:#64748b">Date: {{ invoice.invoice_date }}</div>
+        <div style="font-size:0.85rem; color:#dc2626; font-weight:700">Due: {{ invoice.due_date }}</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:#64748b; margin-bottom:4px">BILLED TO:</div>
+        <div style="font-size:1.1rem; font-weight:700">{{ invoice.partner_name }}</div>
+        <div style="color:#475569">{{ invoice.partner_company or '' }}</div>
+        <div style="color:#475569">{{ invoice.partner_email or '' }}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:#64748b; margin-bottom:4px">PAYMENT STATUS:</div>
+        <div style="display:inline-block; padding:4px 12px; border-radius:999px; background:#e0f2fe; color:#0369a1; font-weight:700; font-size:0.85rem">
+          {{ invoice.status }}
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th style="text-align:center">Pax</th>
+          <th style="text-align:right">Rate / Pax (IDR)</th>
+          <th style="text-align:right">Amount (IDR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td><strong>{{ item.description }}</strong></td>
+            <td style="text-align:center">{{ item.pax_count or '-' }}</td>
+            <td style="text-align:right">{{ "{:,.0f}".format(item.unit_price) }}</td>
+            <td style="text-align:right"><strong>{{ "{:,.0f}".format(item.line_total) }}</strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align:right; font-weight:700">Subtotal:</td>
+          <td style="text-align:right; font-weight:700">IDR {{ "{:,.0f}".format(invoice.subtotal) }}</td>
+        </tr>
+        {% if invoice.discount_amount > 0 %}
+          <tr>
+            <td colspan="3" style="text-align:right; color:#dc2626">Discount:</td>
+            <td style="text-align:right; color:#dc2626">- IDR {{ "{:,.0f}".format(invoice.discount_amount) }}</td>
+          </tr>
+        {% endif %}
+        <tr style="font-size:1.1rem; background:#f8fafc">
+          <td colspan="3" style="text-align:right; font-weight:800; color:#0f172a">Total Due:</td>
+          <td style="text-align:right; font-weight:800; color:#0b4972">IDR {{ "{:,.0f}".format(invoice.total_amount) }}</td>
+        </tr>
+        {% if invoice.paid_amount > 0 %}
+          <tr>
+            <td colspan="3" style="text-align:right; color:#16a34a">Amount Paid:</td>
+            <td style="text-align:right; color:#16a34a">- IDR {{ "{:,.0f}".format(invoice.paid_amount) }}</td>
+          </tr>
+          <tr style="font-weight:700">
+            <td colspan="3" style="text-align:right">Balance Remaining:</td>
+            <td style="text-align:right; color:#ea580c">IDR {{ "{:,.0f}".format(invoice.total_amount - invoice.paid_amount) }}</td>
+          </tr>
+        {% endif %}
+      </tfoot>
+    </table>
+
+    <div class="bank-box">
+      <h4>Settlement Bank Transfer Details:</h4>
+      <div style="font-size:0.9rem; line-height:1.6">
+        Bank: <strong>{{ bank.bank_name or 'Bank Central Asia (BCA)' }}</strong><br>
+        Account Number: <strong style="font-size:1.05rem; letter-spacing:0.05em">{{ bank.account_number or '6700273201' }}</strong><br>
+        Account Name: <strong>{{ bank.account_name or 'I Gusti Agung Made Bara Oka' }}</strong>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; font-size:0.75rem; color:#64748b; line-height:1.5">
+      <strong>Terms & Conditions:</strong><br>
+      Full payment must be settled 5 days before the scheduled activity date. Cancellations made 7+ days before activity incur a 50% cancellation fee; cancellations less than 7 days prior incur a 100% cancellation fee.
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>ERP Settings & Master Data</h1>
+    <span class="muted" style="font-size:0.88rem">Company profile, settlement bank accounts, and operational field resources</span>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px">
+  <!-- Company Profile Card -->
+  <div class="card">
+    <h3>Company Profile & Invoicing Rules</h3>
+    <form action="{{ url_for('update_company_profile') }}" method="POST">
+      <div class="field">
+        <label>COMPANY NAME</label>
+        <input type="text" name="company_name" value="{{ company.company_name or 'Happy Local Adventure' }}" required>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+        <div>
+          <label>INVOICE PREFIX</label>
+          <input type="text" name="invoice_prefix" value="{{ company.invoice_prefix or 'INV' }}" required>
+        </div>
+        <div>
+          <label>PAYMENT DUE (DAYS BEFORE TOUR)</label>
+          <input type="number" name="due_days" value="{{ company.payment_due_days_before_activity or 5 }}" min="1" max="30" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>DEFAULT CURRENCY</label>
+        <input type="text" name="default_currency" value="{{ company.default_currency or 'IDR' }}" required>
+      </div>
+
+      <div class="field">
+        <label>PAYMENT TERMS & CANCELLATION NOTE</label>
+        <textarea name="payment_terms_note" rows="3">{{ company.payment_terms_note or 'Full payment 5 days before activity date. Cancellation fees apply per contract.' }}</textarea>
+      </div>
+
+      <button type="submit">Update Company Profile</button>
+    </form>
+  </div>
+
+  <!-- Bank Accounts Card -->
+  <div class="card">
+    <h3>Settlement Bank Accounts</h3>
+    <p class="muted" style="font-size:0.82rem; margin-bottom:12px">Accounts printed on invoices for agent bank transfers.</p>
+
+    <div class="table-container" style="margin-bottom:16px">
+      <table>
+        <thead>
+          <tr>
+            <th>Bank</th>
+            <th>Account #</th>
+            <th>Account Name</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bank_accounts %}
+            <tr>
+              <td><strong>{{ b.bank_name }}</strong></td>
+              <td>{{ b.account_number }}</td>
+              <td>{{ b.account_name }}</td>
+              <td>
+                {% if b.is_primary %}
+                  <span class="badge Confirmed">Primary</span>
+                {% else %}
+                  <span class="muted">-</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">+ Add Bank Account</h4>
+    <form action="{{ url_for('add_bank_account') }}" method="POST">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+        <div>
+          <label>BANK NAME</label>
+          <input type="text" name="bank_name" placeholder="e.g. BCA / Mandiri" required>
+        </div>
+        <div>
+          <label>ACCOUNT NUMBER</label>
+          <input type="text" name="account_number" placeholder="e.g. 6700273201" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>ACCOUNT HOLDER NAME</label>
+        <input type="text" name="account_name" placeholder="e.g. I Gusti Agung Made Bara Oka" required>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+          <input type="checkbox" name="is_primary" value="1" style="width:auto">
+          <span>Set as Primary settlement account on invoices</span>
+        </label>
+      </div>
+      <button type="submit" class="secondary">Add Bank Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- Field Resources Management (Guides & Drivers) -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px">
+  <!-- Guides Management -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+      <h3>Tour Guides ({{ guides | length }})</h3>
+      <span class="badge Active">Field Ops</span>
+    </div>
+
+    <div class="table-container" style="margin-bottom:16px">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Languages</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for g in guides %}
+            <tr>
+              <td><strong>{{ g.name }}</strong></td>
+              <td>{{ g.languages or 'Indonesian, English' }}</td>
+              <td>{{ g.phone or '-' }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="3" class="muted" style="text-align:center">No guides registered yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">+ Register New Guide</h4>
+    <form action="{{ url_for('add_guide') }}" method="POST">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+        <div>
+          <label>GUIDE FULL NAME</label>
+          <input type="text" name="name" placeholder="e.g. Wayan Sudarta" required>
+        </div>
+        <div>
+          <label>PHONE / WHATSAPP</label>
+          <input type="text" name="phone" placeholder="+62 813 3800 xxxx">
+        </div>
+      </div>
+      <div class="field">
+        <label>LANGUAGES SPOKEN</label>
+        <input type="text" name="languages" placeholder="e.g. English, French, Japanese">
+      </div>
+      <button type="submit">Add Guide</button>
+    </form>
+  </div>
+
+  <!-- Drivers Management -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+      <h3>Transport Drivers ({{ drivers | length }})</h3>
+      <span class="badge Active">Fleet Ops</span>
+    </div>
+
+    <div class="table-container" style="margin-bottom:16px">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Vehicle / Plat No</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in drivers %}
+            <tr>
+              <td><strong>{{ d.name }}</strong></td>
+              <td>{{ d.vehicle_info or 'Toyota Innova' }}</td>
+              <td>{{ d.phone or '-' }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="3" class="muted" style="text-align:center">No drivers registered yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="font-size:0.88rem; color:var(--ink-muted); text-transform:uppercase; margin-bottom:8px">+ Register New Driver</h4>
+    <form action="{{ url_for('add_driver') }}" method="POST">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px">
+        <div>
+          <label>DRIVER FULL NAME</label>
+          <input type="text" name="name" placeholder="e.g. Ketut Arta" required>
+        </div>
+        <div>
+          <label>PHONE / WHATSAPP</label>
+          <input type="text" name="phone" placeholder="+62 812 3456 xxxx">
+        </div>
+      </div>
+      <div class="field">
+        <label>VEHICLE DETAILS & PLAT NO</label>
+        <input type="text" name="vehicle_info" placeholder="e.g. Toyota Innova Reborn (DK 1888 XY)">
+      </div>
+      <button type="submit">Add Driver</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Partners & Travel Agents</h1>
+    <span class="muted" style="font-size:0.88rem">Contract DMCs, Resellers, and Direct Customers</span>
+  </div>
+  <div>
+    <a href="#new-partner" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Add Partner</span>
+    </a>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="tabs">
+    <button class="active" data-filter="all">All Partners</button>
+  </div>
+
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="partner-search" placeholder="Search partner name, email...">
+  </div>
+</div>
+
+<div class="table-container">
+  <table id="partners-table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Agent / Partner Name</th>
+        <th>Company</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Country</th>
+        <th>Payment Terms</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in partners_list %}
+        <tr>
+          <td><strong>{{ p.code }}</strong></td>
+          <td>{{ p.name }}</td>
+          <td>{{ p.company or '-' }}</td>
+          <td>{{ p.email or '-' }}</td>
+          <td>{{ p.phone or '-' }}</td>
+          <td>{{ p.country or 'Indonesia' }}</td>
+          <td>{{ p.payment_terms_days }} days</td>
+          <td><span class="badge {% if p.is_active %}Active{% else %}Inactive{% endif %}">{% if p.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+        </tr>
+      {% else %}
+        <tr class="no-filter">
+          <td colspan="8" style="text-align:center; padding:32px; color:var(--ink-muted)">No partners registered yet</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Partner Form -->
+<div class="card" id="new-partner" style="margin-top:32px">
+  <h3>Add New Travel Agent / Partner</h3>
+  <form action="{{ url_for('create_partner_route') }}" method="POST">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:16px">
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PARTNER CODE</label>
+        <input type="text" name="code" placeholder="e.g. BALI-DISC" required>
+      </div>
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">CONTACT PERSON / NAME</label>
+        <input type="text" name="name" placeholder="e.g. John Doe" required>
+      </div>
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">COMPANY NAME</label>
+        <input type="text" name="company" placeholder="e.g. Bali Discovery DMC">
+      </div>
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">EMAIL</label>
+        <input type="email" name="email" placeholder="inbound@agency.com">
+      </div>
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PHONE</label>
+        <input type="text" name="phone" placeholder="+62 812 ...">
+      </div>
+      <div>
+        <label style="font-size:0.78rem; font-weight:700; color:var(--ink-muted); margin-bottom:4px; display:block">PAYMENT TERMS (DAYS)</label>
+        <input type="number" name="payment_terms_days" value="0" min="0">
+      </div>
+    </div>
+    <button type="submit">Save Partner</button>
+  </form>
+</div>
+{% endblock %}
